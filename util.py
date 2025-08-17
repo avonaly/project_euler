@@ -1,12 +1,8 @@
 
 import typing
-import numpy as np
 
 
-DEBUG = True
-
-
-def primes_up_to(upper_bound: int):
+def primes_less_than(upper_bound: int):
     """
     Returns a tuple with prime numbers exclusive less than upper_bound
 
@@ -22,7 +18,7 @@ def primes_up_to(upper_bound: int):
     return tuple(i for i,n in enumerate(candidates) if n and i>=2)
 
 
-def greatest_element_less_than(sorted_seq: typing.Sequence[int], upper_bound: int):
+def index_of_greatest_element_less_than(sorted_seq: typing.Sequence[int], upper_bound: int):
     """
     Returns the index of the maximum value in sorted_seq less than upper_bound.
 
@@ -32,8 +28,10 @@ def greatest_element_less_than(sorted_seq: typing.Sequence[int], upper_bound: in
     a, b = -1, len(sorted_seq)
     while a+1 < b:
         m = (a+b) // 2
-        if sorted_seq[m] < upper_bound: a=m
-        else: b=m
+        if sorted_seq[m] < upper_bound:
+            a=m
+        else:
+            b=m
 
     return a
 
@@ -49,7 +47,8 @@ def pwr_residue(base: int, exponent: int, modulus: int):
     residue = 1
 
     while exponent > 0:
-        if exponent & 1: residue = residue * base % modulus
+        if exponent & 1:
+            residue = residue * base % modulus
         base = base**2 % modulus
         exponent = exponent >> 1
     
