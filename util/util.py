@@ -25,6 +25,21 @@ def primes_less_than(upper_bound: int):
     return array("L", (i for i, is_prime in enumerate(candidates) if is_prime))
 
 
+def digits_of(n: int):
+    """
+    yields base-10 digits of n from least sig fig up
+    """
+    if n == 0:
+        yield 0
+
+    n_rem = abs(n)  # remaining digits
+    while n_rem > 0:
+        a, b = divmod(n_rem, 10)
+        n_rem = a
+        yield b
+    # return the next digit per call
+
+
 def index_of_greatest_element_less_than(
     sorted_seq: typing.Sequence[int], upper_bound: int
 ):
