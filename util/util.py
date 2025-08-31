@@ -1,7 +1,7 @@
-import typing
+from typing import Iterable
 from array import array
 import math
-import timeit
+""" import timeit """
 
 
 DEBUG = True
@@ -28,8 +28,8 @@ def create_prime_sieve(upper_bound: int):
 
 def miller_rabin(
     n: int,
-    bases: typing.Iterable[int] = [2, 7, 61],
-    low_primes: typing.Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
+    bases: Iterable[int] = [2, 7, 61],
+    low_primes: Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
 ):
     """
     Uses fast primality testing per the spec described at https://t5k.org/prove/prove2_3.html
