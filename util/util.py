@@ -29,19 +29,20 @@ def create_prime_sieve(upper_bound: int):
 def miller_rabin(
     n: int,
     bases: typing.Iterable[int] = [2, 7, 61],
-    primes: typing.Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
+    low_primes: typing.Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
 ):
     """
     Uses fast primality testing per the spec described at https://t5k.org/prove/prove2_3.html
     With default bases, the test is valid up to u32 range.
+    With default primes this test is unnecessarily slow for even numbers.
     """
     if n < 2:
         return False
-    elif n in bases or n in primes:
+    elif n in bases:
         return True
 
-    # opportunistically test low primes
-    if any(n % prime == 0 for prime in primes):
+    # opportunistically test common prime factors
+    if any(n % prime == 0 for prime in low_primes):
         return False
 
     # Write n-1 as 2^s * d
@@ -67,41 +68,6 @@ def miller_rabin(
     return True
 
 
-def digits_of(n: int):  # obsolete
-    """
-    yields base-10 digits of n from least sig fig up
-    """
-    if n == 0:
-        yield 0
-
-    n_rem = abs(n)  # remaining digits
-    while n_rem > 0:
-        a, b = divmod(n_rem, 10)
-        n_rem = a
-        yield b
-    # return the next digit per call
-
-
-def index_of_greatest_element_less_than(
-    sorted_seq: typing.Sequence[int], upper_bound: int
-):  # obsolete
-    """
-    Returns the index of the maximum value in sorted_seq less than upper_bound.
-
-    Implements naive search
-    """
-
-    a, b = -1, len(sorted_seq)
-    while a + 1 < b:
-        m = (a + b) // 2
-        if sorted_seq[m] < upper_bound:
-            a = m
-        else:
-            b = m
-
-    return a
-
-
 def create_divisor_counter(upper_bound: int):
     size = upper_bound // 2
 
@@ -123,22 +89,3 @@ def create_divisor_counter(upper_bound: int):
         # a bit hacky here but makes sense
 
     return divisor_count
-
-
-def pwr_residue(base: int, exponent: int, modulus: int):  # obsolete
-    """
-    Returns the residue after exponentiation. Does not support negative bases or powers, or modulo 1.
-
-    Implementation progressively exponentiates by two, increasing exponent by one if required, until exponent reaches desired value.
-    """
-
-    base %= modulus
-    residue = 1
-
-    while exponent > 0:
-        if exponent & 1:
-            residue = residue * base % modulus
-        base = base**2 % modulus
-        exponent = exponent >> 1
-
-    return residue
