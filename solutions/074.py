@@ -5,10 +5,11 @@ from itertools import islice
 
 DEBUG = True
 
+SAFE_CACHE_SIZE = 7 * math.factorial(9)
+MAX_N = 10**6
+
 
 def build_chain_lengths(upper_bound: int):
-    SAFE_CACHE_SIZE = 2200000
-
     # a number is either inside or outside a loop
     # so a chain starting from a number n always has unique nums until it enters a loop
     # at which point it does exactly one cycle
@@ -36,9 +37,9 @@ def build_chain_lengths(upper_bound: int):
                 for k in islice(chain_from_n, loop_start, None):
                     chain_len[k] = loop_len
                 # drop the loop from the chain (keeping the entry point)
-                del chain_from_n[loop_start + 1 :]
+                chain_from_n = chain_from_n[: loop_start + 1]
                 break
-
+            
             # add the validated term to the chain
             chain_from_n.append(working_num)
             chain_index.add(working_num)
@@ -47,15 +48,19 @@ def build_chain_lengths(upper_bound: int):
         for k, a_k in enumerate(reversed(chain_from_n)):
             chain_len[a_k] = k + cached_len
 
-    return chain_len[: upper_bound + 1]
+    del chain_len[: upper_bound + 1 :]
+    return chain_len
 
 
 def build_solver():
-    MAX_N = 10**6
     chain_len_array = build_chain_lengths(MAX_N)
 
-    def solve(chain_len: int, upper_bound: int):
-        solutions = [n for n, len in enumerate(islice(chain_len_array, upper_bound + 1)) if len == chain_len]
+    def solve(target_len: int, upper_bound: int):
+        solutions = [
+            n
+            for n, chain_len in enumerate(islice(chain_len_array, upper_bound + 1))
+            if chain_len == target_len
+        ]
         return solutions or [-1]
 
     return solve
@@ -66,8 +71,8 @@ def main():
 
     t = int(input().strip())
     for _ in range(t):
-        n, len = map(int, input().split())
-        print(*solve(len, n))
+        n, target_len = map(int, input().split())
+        print(*solve(target_len, n))
 
 
 if DEBUG:

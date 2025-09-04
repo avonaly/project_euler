@@ -1,7 +1,6 @@
-from typing import Iterable
-from array import array
+import typing
+import array
 import math
-""" import timeit """
 
 
 DEBUG = True
@@ -28,8 +27,8 @@ def create_prime_sieve(upper_bound: int):
 
 def miller_rabin(
     n: int,
-    bases: Iterable[int] = [2, 7, 61],
-    low_primes: Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
+    bases: typing.Iterable[int] = [2, 7, 61],
+    low_primes: typing.Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
 ):
     """
     Uses fast primality testing per the spec described at https://t5k.org/prove/prove2_3.html
@@ -71,7 +70,7 @@ def miller_rabin(
 def create_divisor_counter(upper_bound: int):
     size = upper_bound // 2
 
-    odd_div_counts = array("H", [1] * size)
+    odd_div_counts = array.array("H", [1] * size)
     # build an array of the divisor counts of odd integers on initialisation
     # we eventually want _odd_div_counts[k] == the divisor count of 2k+1
     for k in range(1, size):
