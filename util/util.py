@@ -1,9 +1,10 @@
-import typing
-import array
+from collections.abc import Iterable, Sequence
+from array import array
 import math
 
-
 DEBUG = True
+
+type Matrix[T] = Sequence[Sequence[int]]
 
 
 def create_prime_sieve(upper_bound: int):
@@ -27,8 +28,8 @@ def create_prime_sieve(upper_bound: int):
 
 def miller_rabin(
     n: int,
-    bases: typing.Iterable[int] = [2, 7, 61],
-    low_primes: typing.Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
+    bases: Iterable[int] = [2, 7, 61],
+    low_primes: Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
 ):
     """
     Uses fast primality testing per the spec described at https://t5k.org/prove/prove2_3.html
@@ -70,7 +71,7 @@ def miller_rabin(
 def create_divisor_counter(upper_bound: int):
     size = upper_bound // 2
 
-    odd_div_counts = array.array("H", [1] * size)
+    odd_div_counts = array("H", [1] * size)
     # build an array of the divisor counts of odd integers on initialisation
     # we eventually want _odd_div_counts[k] == the divisor count of 2k+1
     for k in range(1, size):
@@ -88,3 +89,31 @@ def create_divisor_counter(upper_bound: int):
         # a bit hacky here but makes sense
 
     return divisor_count
+
+
+def matmul_mod(A: Matrix[int], B: Matrix[int], mod: int | None = None):
+    B_transpose = tuple(zip(*B))
+    result: Matrix[int] = []
+    for row in A:
+        new_row: list[int] = []
+        for col in B_transpose:
+            s = sum(x * y for x, y in zip(row, col))
+            new_row.append(s % mod if mod is not None else s)
+        result.append(new_row)
+    return result
+
+
+def matexp(A: Matrix[int], pwr: int, mod: int | None = None):
+    dim = len(A)
+    base = A
+    # initialise result as identity matrix
+    result: Matrix[int] = [[int(i == j) for j in range(dim)] for i in range(dim)]
+
+    while pwr > 0:
+        if pwr & 1:
+            result = matmul_mod(result, base, mod)
+
+        base = matmul_mod(base, base, mod)
+        pwr >>= 1
+
+    return result
