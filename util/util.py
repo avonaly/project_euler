@@ -1,6 +1,8 @@
 from collections.abc import Iterable, Sequence
+from collections import Counter
 from array import array
 import math
+import random
 
 DEBUG = True
 
@@ -26,15 +28,14 @@ def create_prime_sieve(upper_bound: int):
     return is_prime
 
 
-def miller_rabin(
+def is_prime(
     n: int,
-    bases: Iterable[int] = [2, 7, 61],
-    low_primes: Iterable[int] = [3, 5, 7, 11, 13, 17, 19],
+    bases: Iterable[int] = (2, 7, 61),
+    low_primes: Iterable[int] = (2, 3, 5, 7, 11, 13, 17, 19),
 ):
     """
     Uses fast primality testing per the spec described at https://t5k.org/prove/prove2_3.html
     With default bases, the test is valid up to u32 range.
-    With default primes this test is unnecessarily slow for even numbers.
     """
     if n < 2:
         return False
@@ -42,8 +43,9 @@ def miller_rabin(
         return True
 
     # opportunistically test common prime factors
-    if any(n % prime == 0 for prime in low_primes):
-        return False
+    for prime in low_primes:
+        if n % prime == 0:
+            return n == prime
 
     # Write n-1 as 2^s * d
     d = n - 1
@@ -117,3 +119,38 @@ def matexp(A: Matrix[int], pwr: int, mod: int | None = None):
         pwr >>= 1
 
     return result
+
+
+def pollard_rho(n: int):
+    if n % 2 == 0:
+        return 2
+    if n % 3 == 0:
+        return 3
+    while True:
+        x = random.randrange(2, n - 1)
+        y = x
+        c = random.randrange(1, n - 1)
+        d = 1
+        while d == 1:
+            x = (x * x + c) % n
+            y = (y * y + c) % n
+            y = (y * y + c) % n
+            d = math.gcd(abs(x - y), n)
+        if d != n:
+            return d
+
+
+def factorize(n: int) -> Counter[int]:
+    def factor(n: int, factors_of_n: Counter[int]):
+        if n == 1:
+            return
+        if is_prime(n):
+            factors_of_n[n] += 1
+            return
+        d = pollard_rho(n)
+        factor(d, factors_of_n)
+        factor(n // d, factors_of_n)
+
+    factors = Counter()
+    factor(n, factors)
+    return factors
